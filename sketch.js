@@ -11,16 +11,20 @@ let balls = [];
 let ballD = 30;
 
 let osc;
-let midi = [60, 62, 64, 65, 67] // C4, D4, E4, F4, G4
+let midi = [60, 62, 64, 65, 67]; // C4, D4, E4, F4, G4
+let freq = [261, 293, 329, 349, 392];
 let amplitude;
+
+let noteRectangles = [];
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   let constraints = {
     video: {
       mandatory: {
-        minWidth: 320,
-        minHeight: 240
+        minWidth: 160,
+        minHeight: 120
       }
       // optional: [{ maxFrameRate: 10 }]
     },
@@ -38,20 +42,20 @@ function setup() {
     staticCircles.push(new Sprite(0,0,50,"static"));
   }
 
-
-  // randomSeed(100);
-  rectMode(CENTER);
+  // randomSeed(100); 
 
   // Create 5 blocks
   push();
+  rectMode(CENTER);
   translate(width/2, height/2);
   for (i = 0; i < 5; i++) {
     blocks.push(new Sprite(random(100, width - 100), random(100, height - 100), blockW, blockH));
   }
+  rectMode(CORNER);
   pop();
   
   // Create 10 balls
-  for (i = 0; i < 10; i++) {
+  for (i = 0; i < 5; i++) {
     ball = new Sprite(random(30, width-30), random(-100,-50), ballD);
     ball.bounciness = 1;
     balls.push(ball);
@@ -61,6 +65,37 @@ function setup() {
   osc = new p5.TriOsc();
   amplitude = new p5.Amplitude();
   amplitude.setInput(osc);
+}
+
+class noteRectangle {
+  constructor(_freq, _timeStamp, _x, _y) {
+    this.w = 30;
+    this.h = _freq; // Height is the frequency of the MIDI note
+    this.timeStamp = _timeStamp; // The time when the note is played
+    this.x = _x;
+    this.y = _y - _freq;
+  }
+  draw() {
+    // fill(255);
+    // noStroke();
+    //set colors
+    patternColors([color(0), color(0, 0, 240),color(200)]);
+    //set pattern
+    switch (this.h) {
+      case 261: patternColors([color(0), color(0, 0, 240)]); break;
+      case 293: patternColors([color(0), color(0, 240, 0)]); break;
+      case 329: patternColors([color(0), color(240, 0, 0)]); break;
+      case 349: patternColors([color(0), color(0, 240, 240)]); break;
+      case 392: patternColors([color(0), color(240, 0, 240)]); break;      
+    }
+    patternAngle(PI);
+    pattern(PTN.stripe(30));
+    rectMode(CORNER);
+    rectPattern(this.x, this.y, this.w, this.h);
+  }
+  update() {
+    this.x = width - (millis() - this.timeStamp)/100;
+  }
 }
 
 function modelReady() {
@@ -77,6 +112,14 @@ function blockUpdate() {
   }  
 }
 
+function isOnCanvas(item) {
+  if (item.x + item.w < 0) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
 // A function to play a note
 function playNote(note, duration) {
   osc.freq(midiToFreq(note));
@@ -90,12 +133,8 @@ function playNote(note, duration) {
 }
 
 function draw() {
-  // image(video, 0, 0, width, height);
   background(0);
-  // pattern(PTN.checked(40));
-  // rectPattern(0, 0, width, height);
   drawHand();
-  // We can call both functions to draw all keypoints and the skeletons
   
   // Update the balls positions
   for (i = 0; i < balls.length; i++) {
@@ -106,15 +145,29 @@ function draw() {
 
   // Update the blocks
   blockUpdate();
-  print(blocks.length);
+  // print(blocks.length);
 
+  // When a collision happens, play a note
   for (i = 0; i < balls.length; i++) {
     for (j = 0; j < blocks.length; j++) {
       if (balls[i].collided(blocks[j])) {    
         // Play midi note
         playNote(midi[j]);
+        // Generate a rectangle to represent the note
+        let T = millis();
+        noteRectangles.push(new noteRectangle(freq[j], T, width, height));
       }
     }    
+  }
+  
+  // Draw the rectangle series that represents the MIDI notes
+  // First, filter out the rectangles that go out of the canvas
+  noteRectangles = noteRectangles.filter(isOnCanvas);
+  for (i = 0; i < noteRectangles.length; i++) {
+    noteRectangles[i].draw();
+  }
+  for (i = 0; i < noteRectangles.length; i++) {
+    noteRectangles[i].update();
   }  
 }
 
