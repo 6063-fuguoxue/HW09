@@ -15,7 +15,7 @@ let midi = [60, 62, 64, 65, 67]; // C4, D4, E4, F4, G4
 let freq = [261, 293, 329, 349, 392];
 let amplitude;
 
-let noteRectangles = [];
+let noteCircles = [];
 
 
 function setup() {
@@ -54,7 +54,7 @@ function setup() {
   rectMode(CORNER);
   pop();
   
-  // Create 10 balls
+  // Create 5 balls
   for (i = 0; i < 5; i++) {
     ball = new Sprite(random(30, width-30), random(-100,-50), ballD);
     ball.bounciness = 1;
@@ -67,33 +67,30 @@ function setup() {
   amplitude.setInput(osc);
 }
 
-class noteRectangle {
+class noteCircle {
   constructor(_freq, _timeStamp, _x, _y) {
-    this.w = 30;
-    this.h = _freq; // Height is the frequency of the MIDI note
+    this.d = floor(_freq/10);
+    this.d_mapped = map(floor(_freq/10),26,39,50,15); // Height is the frequency of the MIDI note
     this.timeStamp = _timeStamp; // The time when the note is played
     this.x = _x;
-    this.y = _y - _freq;
+    this.y = _y - map(_freq, 261, 392, 20, 300);
   }
   draw() {
-    // fill(255);
-    // noStroke();
     //set colors
-    patternColors([color(0), color(0, 0, 240),color(200)]);
-    //set pattern
-    switch (this.h) {
-      case 261: patternColors([color(0), color(0, 0, 240)]); break;
-      case 293: patternColors([color(0), color(0, 240, 0)]); break;
-      case 329: patternColors([color(0), color(240, 0, 0)]); break;
-      case 349: patternColors([color(0), color(0, 240, 240)]); break;
-      case 392: patternColors([color(0), color(240, 0, 240)]); break;      
+    switch (this.d) {
+      case 26: patternColors([color(255), color(0, 0, 240)]); break;
+      case 29: patternColors([color(255), color(0, 240, 0)]); break;
+      case 32: patternColors([color(255), color(240, 0, 0)]); break;
+      case 34: patternColors([color(255), color(0, 240, 240)]); break;
+      case 39: patternColors([color(255), color(240, 0, 240)]); break;      
     }
-    patternAngle(PI);
-    pattern(PTN.stripe(30));
-    rectMode(CORNER);
-    rectPattern(this.x, this.y, this.w, this.h);
+    //set pattern
+    // patternAngle(PI/4);
+    pattern(PTN.noiseGrad(0.5));
+    ellipsePattern(this.x, this.y, this.d_mapped, this.d_mapped);
   }
   update() {
+    // Update the position of the noteCircle
     this.x = width - (millis() - this.timeStamp)/100;
   }
 }
@@ -155,19 +152,19 @@ function draw() {
         playNote(midi[j]);
         // Generate a rectangle to represent the note
         let T = millis();
-        noteRectangles.push(new noteRectangle(freq[j], T, width, height));
+        noteCircles.push(new noteCircle(freq[j], T, width, height));
       }
     }    
   }
   
   // Draw the rectangle series that represents the MIDI notes
   // First, filter out the rectangles that go out of the canvas
-  noteRectangles = noteRectangles.filter(isOnCanvas);
-  for (i = 0; i < noteRectangles.length; i++) {
-    noteRectangles[i].draw();
+  noteCircles = noteCircles.filter(isOnCanvas);
+  for (i = 0; i < noteCircles.length; i++) {
+    noteCircles[i].draw();
   }
-  for (i = 0; i < noteRectangles.length; i++) {
-    noteRectangles[i].update();
+  for (i = 0; i < noteCircles.length; i++) {
+    noteCircles[i].update();
   }  
 }
 
