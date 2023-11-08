@@ -68,12 +68,12 @@ function setup() {
 }
 
 class noteCircle {
-  constructor(_freq, _timeStamp, _x, _y) {
+  constructor(_freq, _timeStamp, _width, _height) {
     this.d = floor(_freq/10);
     this.d_mapped = map(floor(_freq/10),26,39,50,15); // Height is the frequency of the MIDI note
     this.timeStamp = _timeStamp; // The time when the note is played
-    this.x = _x;
-    this.y = _y - map(_freq, 261, 392, 25, 300);
+    this.x = width + this.d_mapped/2;
+    this.y = height - map(_freq, 261, 392, 25, 300);
   }
   draw() {
     //set colors
@@ -91,7 +91,7 @@ class noteCircle {
   }
   update() {
     // Update the position of the noteCircle
-    this.x = width - (millis() - this.timeStamp)/100;
+    this.x = width + this.d_mapped/2 - (millis() - this.timeStamp)/10;
   }
 }
 
@@ -109,8 +109,9 @@ function blockUpdate() {
   }  
 }
 
+// Check if the circles are still on canvas
 function isOnCanvas(item) {
-  if (item.x + item.w < 0) {
+  if (item.x + item.d_mapped/2 < 0) {
     return false;
   } else {
     return true;
@@ -150,19 +151,21 @@ function draw() {
       if (balls[i].collided(blocks[j])) {    
         // Play midi note
         playNote(midi[j]);
-        // Generate a rectangle to represent the note
+        // Generate a circle to represent the note
         let T = millis();
         noteCircles.push(new noteCircle(freq[j], T, width, height));
       }
     }    
   }
   
-  // Draw the rectangle series that represents the MIDI notes
-  // First, filter out the rectangles that go out of the canvas
+  
+  // Filter out the circles that go out of the canvas
   noteCircles = noteCircles.filter(isOnCanvas);
+  // Draw the circles that represents the MIDI notes
   for (i = 0; i < noteCircles.length; i++) {
     noteCircles[i].draw();
   }
+  // Update the positions of the circles  
   for (i = 0; i < noteCircles.length; i++) {
     noteCircles[i].update();
   }  
