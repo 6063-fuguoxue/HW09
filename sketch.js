@@ -5,17 +5,28 @@ let staticCircles = []; // Contain all the sprites
 
 let block;
 let blocks = [];
-let blockW = 300, blockH = 20;
+let blockW = 400, blockH = 30;
 let ball;
 let balls = [];
 let ballD = 30;
 
 let osc;
 let midi = [60, 62, 64, 65, 67] // C4, D4, E4, F4, G4
+let amplitude;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  video = createCapture(VIDEO);
+  let constraints = {
+    video: {
+      mandatory: {
+        minWidth: 320,
+        minHeight: 240
+      }
+      // optional: [{ maxFrameRate: 10 }]
+    },
+    audio: false
+  };
+  video = createCapture(constraints); // Change param to make it smaller
   handpose = ml5.handpose(video, modelReady);
   handpose.on("hand", results => {
     hands = results;
@@ -48,9 +59,8 @@ function setup() {
 
   // A triangle oscillator
   osc = new p5.TriOsc();
-  // Start silent
-  osc.start();
-  osc.amp(0);
+  amplitude = new p5.Amplitude();
+  amplitude.setInput(osc);
 }
 
 function modelReady() {
@@ -82,6 +92,8 @@ function playNote(note, duration) {
 function draw() {
   // image(video, 0, 0, width, height);
   background(0);
+  // pattern(PTN.checked(40));
+  // rectPattern(0, 0, width, height);
   drawHand();
   // We can call both functions to draw all keypoints and the skeletons
   
@@ -149,6 +161,9 @@ function drawHand() {
 
 function keyPressed() {
   if (key == 's') {    
+    // Start silent
+    osc.start();
+    osc.amp(0);
     for (i = 0; i < blocks.length; i++) {
       block = blocks[i];
       block.collider = 's';
