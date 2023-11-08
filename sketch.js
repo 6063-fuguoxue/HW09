@@ -73,7 +73,7 @@ class noteCircle {
     this.d_mapped = map(floor(_freq/10),26,39,50,15); // Height is the frequency of the MIDI note
     this.timeStamp = _timeStamp; // The time when the note is played
     this.x = _x;
-    this.y = _y - map(_freq, 261, 392, 20, 300);
+    this.y = _y - map(_freq, 261, 392, 25, 300);
   }
   draw() {
     //set colors
