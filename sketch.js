@@ -109,6 +109,14 @@ function blockUpdate() {
   }  
 }
 
+function ballUpdate() {
+  for (i = 0; i < balls.length; i++) {
+    if (balls[i].y > width) {    
+      balls[i] = new Sprite(random(30, width-30), -100, ballD);
+    }
+  }
+}
+
 // Check if the circles are still on canvas
 function isOnCanvas(item) {
   if (item.x + item.d_mapped/2 < 0) {
@@ -135,11 +143,7 @@ function draw() {
   drawHand();
   
   // Update the balls positions
-  for (i = 0; i < balls.length; i++) {
-    if (balls[i].y > width) {    
-      balls[i] = new Sprite(random(30, width-30), -100, ballD);
-    }
-  }
+  ballUpdate();
 
   // Update the blocks
   blockUpdate();
