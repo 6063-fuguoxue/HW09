@@ -3,26 +3,26 @@ This week, I explored many p5.js libraries and used some of them to create a MID
 
 * **[ml5.js](https://learn.ml5js.org/#/)**: I used it for hand pose detection. 
 * **[p5.Polar](https://github.com/liz-peng/p5.Polar)**: I didn't use it but find it interesting and convenient to create polar patterns. 
-* **[p5Play](https://p5play.org/index.html)**: I used it to create the game mechanism. 
+* **[p5Play](https://p5play.org/index.html)**: I used it to program most of the game mechanism. 
 * **[p5.sound](https://p5js.org/reference/#/libraries/p5.sound)**: I used it to make MIDI notes. 
-* **[p5.pattern](https://openprocessing.org/sketch/1278485)**: I used it to color the circles generated in real-time. 
+* **[p5.pattern](https://openprocessing.org/sketch/1278485)**: I used it to color the circles generated in real time. 
 
 To play the game: 
 
 1. Move the blocks on the screen to the positions and angles you want by waving your hands in front of your camera. Your fingertips (marked as circles on the screen) are able to push the blocks around. 
-2. Press "s" key to start the game. There will be balls dropping down from the top of the screen. When they collide with the blocks, you will hear MIDI notes.
+2. Press the "s" key to start the game. There will be balls dropping down from the top of the screen. When they collide with the blocks, you will hear MIDI notes.
 3. If a block is too near to the edge of the screen, it will be disabled and start to fall down. Following the disabling of that block, a new block will be generated at a random position. 
-4. If you want to adjust the positions of the blocks, press "p" key to pause the game. 
+4. If you want to adjust the positions of the blocks, press the "p" key to pause the game. 
 
 ## How I used the libraries
 ### [p5Play](https://p5play.org/index.html)
 When learning p5Play, I think it is useful for creating simple games. I have experience with Unity game development, and I found many game-related functions in this library, such as bounciness and velocity. Therefore, I plan to make a simple game with the p5Play library. Below is a sketch of my initial idea, which is a digital sandbox for the player to move everything inside around by waving their hands in front of the camera. 
 
-*[sandbox sketch]
+![sandbox sketch](./sandbox1.jpg)
 
-Upon learning the collision function in p5Play, I think I can make something similar to [Sketch Piston - Playing Music](https://www.teamlab.art/w/playingmusic/) by teamLab. The high-level logic is to make notes or sound effects upon collisions between elements. Therefore, I used the `collided()` function in p5Play library to detect collisions between blocks and balls, and used p5.sound library to make a MIDI note upon every collision. For the interaction, I used the ml5.js library to detect the player's hand so that the player can use their hand to push the blocks on the screen. 
+Upon learning the collision function in p5Play, I think I can make something similar to [Sketch Piston - Playing Music](https://www.teamlab.art/w/playingmusic/) by teamLab. The high-level logic is to make notes or sound effects upon collisions between elements. Therefore, I used the `collided()` function in the p5Play library to detect collisions between blocks and balls, and used the p5.sound library to make a MIDI note upon every collision. For the interaction, I used the ml5.js library to detect the player's hand so that the player can use their hand to push the blocks on the screen. As mentioned above, if a block is too near to the edge of the screen, it will be disabled and start to fall down; following the disabling of that block, a new block will be generated at a random position. This is achieved by the function of `blockUpdate()`. Similarly, `ballUpdate()` updates the ball positions when the balls fall below the screen. 
 
-*[sandbox ver 2]
+![sandbox ver 2](./sandbox2.jpg)
 
 ### [ml5.js](https://learn.ml5js.org/#/)
 Since I'm interested in computer vision, I explored several functions and examples provided by the ml5.js library. I explored BodyPix, PoseNet, Facemesh, and Handpose. To make the interaction easier for the player, I decided to adapt the Handpose example. 
@@ -32,10 +32,10 @@ When testing the example of Handpose with my sandbox, I found that too many key 
 To prevent lags during runtime, I also resized the video input from 640\*480 to 160\*120 before hand pose tracking. The 160\*120 size is good enough for recognizing hand pose, and it requires less computational resources to load the video. In this way, the program becomes smoother when running. 
 
 ### [p5.sound](https://p5js.org/reference/#/libraries/p5.sound)
-When designing this game, I learned how to make MIDI notes with p5.sound library. I referred to [this](https://p5js.org/examples/hello-p5-song.html) example on p5.js website. I also referred to [this](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies) website for MIDI note numbers and their frequencies. The real-time
+When designing this game, I learned how to make MIDI notes with the p5.sound library. I referred to [this](https://p5js.org/examples/hello-p5-song.html) example on the p5.js website. I also referred to [this](https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies) website for MIDI note numbers and their frequencies. 
 
 ### [p5.pattern](https://openprocessing.org/sketch/1278485)
-I also explored p5.pattern. Different from other libraries, this library requires me to download its JS file and put it in the directory of my sketch. Other than that, this library is easy to use. 
+Different from other libraries, this library requires me to download its JS file and put it in the directory of my sketch. Other than that, this library is easy to use. 
 
 I tried different patterns to color the circles generated in real-time when MIDI notes are played, and I found that some of them will make the lag during runtime more serious. For example, when I draw rectangles in a noise gradient pattern, the program becomes quite laggy. 
 
@@ -58,6 +58,13 @@ I also tried to change the shapes from rectangles to circles. Maybe due to the s
 To make the circles spread on the canvas more evenly, I used the `map()` function to map their positions and sizes. 
 
 ![](./noiseCircle-mapped.png)
+
+## How I visualize the MIDI notes
+I use the p5.pattern with the `noteCircle` class I created to generate shapes of patterns upon collisions between balls and blocks. Below is a sketch of how to calculate the position of the circles. 
+
+![](./music-visualization.jpg)
+
+Each circle is generated on the right of the canvas. As time passes, it moves towards the left, and eventually exits the canvas. To filter out the circles that exit the canvas, I used the `isOnCanvas` function. 
 
 ## Challenges
 * I didn't figure out how to use the p5Play and p5.pattern libraries together. I wanted to create the blocks in one of the preset patterns in p5.pattern, but the two libraries have different syntaxes for creating a rectangle.
